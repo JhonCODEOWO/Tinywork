@@ -1,3 +1,24 @@
+# Table of contents
+- [Table of contents](#table-of-contents)
+- [Tinywork](#tinywork)
+  - [What is Tinywork?](#what-is-tinywork)
+  - [Main features](#main-features)
+  - [How start to using it](#how-start-to-using-it)
+- [How to work with Request class](#how-to-work-with-request-class)
+  - [Getting query params and url params.](#getting-query-params-and-url-params)
+  - [Retrieving body data.](#retrieving-body-data)
+    - [Handling form data.](#handling-form-data)
+    - [Handling files uploaded.](#handling-files-uploaded)
+- [Validating a form  or array data](#validating-a-form--or-array-data)
+  - [Validating files (beta)](#validating-files-beta)
+- [Protected routes](#protected-routes)
+  - [Creating a middleware](#creating-a-middleware)
+  - [Protecting a route](#protecting-a-route)
+- [ORM Feature](#orm-feature)
+  - [How use it](#how-use-it)
+  - [Creating a instance of the model.](#creating-a-instance-of-the-model)
+
+
 # Tinywork
 Your small and friendly framework for small projects.
 
@@ -118,3 +139,91 @@ $validator = new Validator($body, [
         "file.profile_picture" => "required|file|maxSize:1000"
     ]);
 ```
+
+# Protected routes
+Tinywork provides Middleware feature which means you can create Middleware files and mark routes with them.
+Every middleware included in the third parameter of get() and post() Route methods will be executed before execute the controller action route registered.
+## Creating a middleware
+Before you can mark a route with middlewares you should create a .php file with a class that implements MiddlewareInterface contract inside ``middlewares/`` folder.
+
+```
+<?php
+
+namespace Middlewares;
+
+use Closure;
+use Core\Auth;
+use Core\Interfaces\MiddlewareInterface;
+use Routes\Request;
+
+class AuthMiddleware implements MiddlewareInterface{
+    public function handle(Request $req, Closure $next) : mixed
+    {
+        if(!Auth::authenticated()) redirectTo('/login');
+        return $next($req);
+    }
+}
+```
+
+## Protecting a route
+Once you did this you should mark the routes wherever you want execute before this or more middlewares.
+```
+$router->get('/', function(Request $request) {
+    echo "Protected route";
+}, [AuthMiddleware::class]);
+```
+You should return ``$next()`` with the ``$request`` object as its parameter every time you want continue with the next middleware or request, if you logic suppose to reject it then you should use redirectTo() helper function to redirect the user to another valid route or return a error response.
+
+# ORM Feature
+Tinywork provides a simple ORM to work with tables in you database connection, of course you're able to modify it or replace it by installing another ORM Api.
+
+The ORM is based on Active Record, which means every feature provides from a parent class, you can find it inside models/ as ActiveRecord.php.
+
+So if you want to inspect it or modify the main code that is the file where you can do that
+
+## How use it
+Every table in you database connection should be a .php including a class with the name of the table extending from ActiveRecord, both, file and classname have the same name.
+Here's a example of the code supposing there's a table users in the database connection.
+<br/>
+After that you should override some properties from the parent class and type every column as a property of the class.
+Here's a example of a class representing a table users in the database connection
+
+```
+<?php
+
+namespace Models;
+
+class Users extends ActiveRecord{
+    protected static string $table = 'users';
+    protected static string $idName = 'id';
+    protected static array $columns = ['email', 'password'];
+
+
+    public ?int $idUsuario;
+    public string $email;
+    public string $password;
+
+    public function __construct(?array $args = [])
+    {
+        $this->idUsuario = isset($args['idUsuario'])? 
+            filter_var($args['idUsuario']): null;
+        $this->email = $args['email'] ?? '';
+        $this->password = $args['password'] ?? '';
+    }
+}
+
+```
+Every table should be represented like the example.
+
+## Creating a instance of the model.
+Remember, in Active Record every model represents a possible or existing record in the table, so if you want create a new record you should create first a instance of the model and after that you be able to store it using ``save()`` method.
+
+```
+$user = new User([
+    "email" => 'test@test.com', 
+    "password" => 'abcd123'
+]);
+
+$result = $user->save();
+```
+Of course the model not acts like a validator, so previous to store a record the data passed in a new instance Model should be **validated** and **sanitized**.
