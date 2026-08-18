@@ -98,7 +98,7 @@ class ActiveRecord {
         return $this;
     }
 
-    public function guardar(){
+    public function save(){
         //Sanitize data
         $attributes = $this->sanitizeAtributos();
 
