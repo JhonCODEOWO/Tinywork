@@ -1,0 +1,24 @@
+{
+    "name": "user/mini-framework",
+    "description": "A ready mini framework for a small projects.",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Jonathan Juárez Valera",
+            "email": "jjv20618@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.6",
+        "phpmailer/phpmailer": "^7.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Models\\": "./models",
+            "Routes\\": "./Routes",
+            "Controllers\\": "./controllers",
+            "Core\\": "./core",
+            "Middlewares\\": "./middlewares"
+        }
+    }
+}
