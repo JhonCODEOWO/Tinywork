@@ -22,6 +22,7 @@ class Database {
                 $configs['host'], 
                 $configs['username'],
                 $configs['password'],
+                $configs['database'],
             );
             static::$db = $successConnection;
         } catch (mysqli_sql_exception $ex) {
