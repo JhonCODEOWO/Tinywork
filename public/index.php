@@ -11,13 +11,6 @@ $router = new Router();
 
 //Registering routes.
 $router->get('/', function(Request $request) {
-    $body = $request->getBody();
-    $validator = new Validator($body, [
-        "name" => "required",
-        "email" => "required|email",
-    ]);
-
-    $errorBag = $validator->validate();
     view('index', []);
 });
 
