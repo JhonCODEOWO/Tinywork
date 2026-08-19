@@ -1,9 +1,22 @@
+# Tinywork
+Your small and friendly framework for small projects.
+
+# What is Tinywork?
+Tiny work is a framework focused in the main important
+things of a PHP project with the objetive of give you a structure and main features quickly to start to code.
+
 # Table of contents
-- [Table of contents](#table-of-contents)
 - [Tinywork](#tinywork)
-  - [What is Tinywork?](#what-is-tinywork)
-  - [Main features](#main-features)
-  - [How start to using it](#how-start-to-using-it)
+- [What is Tinywork?](#what-is-tinywork)
+- [Table of contents](#table-of-contents)
+- [Main features](#main-features)
+- [How start to using it](#how-start-to-using-it)
+- [Registering routes](#registering-routes)
+  - [get() \& post() syntax.](#get--post-syntax)
+    - [Examples](#examples)
+      - [Registering a route with a callback action](#registering-a-route-with-a-callback-action)
+      - [Registering a route with a ControllerClass action](#registering-a-route-with-a-controllerclass-action)
+      - [Protecting a route with an AuthMiddleware](#protecting-a-route-with-an-authmiddleware)
 - [How to work with Request class](#how-to-work-with-request-class)
   - [Getting query params and url params.](#getting-query-params-and-url-params)
   - [Retrieving body data.](#retrieving-body-data)
@@ -14,19 +27,16 @@
 - [Protected routes](#protected-routes)
   - [Creating a middleware](#creating-a-middleware)
   - [Protecting a route](#protecting-a-route)
-- [ORM Feature](#orm-feature)
+- [ORM Features](#orm-features)
   - [How use it](#how-use-it)
   - [Creating a instance of the model.](#creating-a-instance-of-the-model)
+- [Auth API class.](#auth-api-class)
+  - [Checking if a user can login.](#checking-if-a-user-can-login)
+  - [Login a valid user.](#login-a-valid-user)
+    - [Checking if there's a logged user.](#checking-if-theres-a-logged-user)
+  - [Logout a user.](#logout-a-user)
 
-
-# Tinywork
-Your small and friendly framework for small projects.
-
-## What is Tinywork?
-Tiny work is a framework focused in the main important
-things of a PHP project with the objetive of give you a structure and main features quickly to start to code.
-
-## Main features
+# Main features
 1. Supports send emails using PHPMailer.
 2. Request data management.
 3. Form validator API.
@@ -36,12 +46,94 @@ things of a PHP project with the objetive of give you a structure and main featu
 7. Array API with navigation based on dot notation to manage every array structure in the project.
 8. Js & Css files managed by Vite.
 
-## How start to using it
+# How start to using it
 - Clone this repo wherever you want using `git clone`
 - Before start execute npm, pnpm etc. `install` command and `composer install` to prepare all dependencies needed.
 - Copy .env.example file without .example and fill every entry, is important fill always the database connection credentials.
 - Execute `php -S localhost:8000` inside public/ folder.
 - Execute `npm run dev` to watch for file change and reflect them every time in the build file.
+
+# Registering routes
+Your Tinywork app serves every route by a class that should contain all paths that you want serve in it.
+
+To register all you path routes in Tinywork you can do it by the ``public/index.php`` file.
+
+When you clone the repo index.php file a instance of the class router is initialized.
+
+```
+$router = new Router();
+```
+
+All routes path are handled by this class, and you can register every path by POST or GET request method using **get()** and **post()** Router class methods.
+```
+$router->get('/', function(Request $request) {
+    view('index', []);
+});
+
+$router->post('/create', function(Request $request) {
+    //handle the incoming POST request
+});
+```
+## get() & post() syntax.
+When you call both methods you should pass the next syntax always.
+```
+method(string: relative_path, callback | array: handler, array: middleware_classnames);
+```
+
+here's the description of every argument.
+* required - **relative_path** (string): A path to register where a action will be served.
+* required - **handler** (callable|array): Is the function that will handle the request to the path, you can pass a callback or a array with the ``[ClassController::class, 'functionName']`` syntax.
+* optional - **middlewares** (array): A array containing every class name of the classes that will protect a route, if nothing is passed then a request can be execute the handler.
+
+### Examples
+#### Registering a route with a callback action
+```
+$router->get('/', function(Request $request) {
+    echo "Hello world";
+});
+```
+
+#### Registering a route with a ControllerClass action
+```
+$router->get('/', [PublicController::class, 'index']);
+```
+Of course you should create previously a .php file with the function that you want to assign to the handler in the path.
+
+```
+//controllers/PublicController.php
+
+<?php
+
+namespace Controllers;
+
+class PublicController {
+    public function index(Request $req){
+        echo "Hello World";
+    }
+}
+```
+
+#### Protecting a route with an AuthMiddleware
+Every Middleware class that will protect a route should be passed in a array with them classnames.
+```
+$router->get(
+    '/', 
+    [PublicController::class, 'index'], 
+    [AuthMiddleware::class]
+);
+```
+
+Tinywork includes a **AuthMiddleware.php** inside **middlewares/** folder, you can use it to implement your own logic to prevent access in your routes.
+```
+class AuthMiddleware implements MiddlewareInterface{
+    public function handle(Request $req, Closure $next) : mixed
+    {
+        if(!Auth::authenticated()) redirectTo('/login');
+        return $next($req);
+    }
+}
+```
+Remember, you should return $next function call with the $req to pass if the middleware logic is successful otherwise you can redirect the request, block it, launch a http response or anything else.
 
 # How to work with Request class
 Every time you register a route, a instance of Request class is passed by args, you can use it only declaring it in the args of the action controller function or callback function like this
@@ -52,6 +144,8 @@ $router->('/', function(Request $request) {
     var_dump($request->body(););
 })
 ```
+
+This means that every action function inside your Controller classes can use the $request argument too.
 
 ## Getting query params and url params.
 Of course you can register a route with url params, you can do this using **:urlparameter** syntax
@@ -174,7 +268,7 @@ $router->get('/', function(Request $request) {
 ```
 You should return ``$next()`` with the ``$request`` object as its parameter every time you want continue with the next middleware or request, if you logic suppose to reject it then you should use redirectTo() helper function to redirect the user to another valid route or return a error response.
 
-# ORM Feature
+# ORM Features
 Tinywork provides a simple ORM to work with tables in you database connection, of course you're able to modify it or replace it by installing another ORM Api.
 
 The ORM is based on Active Record, which means every feature provides from a parent class, you can find it inside models/ as ActiveRecord.php.
@@ -227,3 +321,40 @@ $user = new User([
 $result = $user->save();
 ```
 Of course the model not acts like a validator, so previous to store a record the data passed in a new instance Model should be **validated** and **sanitized**.
+
+# Auth API class.
+Tiny work includes a Auth class inside core/ file, it will help you to login/logout users and let you know easily if there's a actual session in your app.
+
+## Checking if a user can login.
+Auth class provides attempt() function which will try to check credentials of a user this method has the next syntax.
+```
+public static function attempt(string $email, string $password, array $modelInfo = [User::class, "users"]): ?object
+```
+
+* required **$email**: A string with the email to find a user in your table.
+* required **$password**: A typed password by the client to try check if is a valid password comparing it with a saved password.
+* optional **$modelInfo** (default [User::class, "users"]): A array containing the classname of your model representation of the table where you want validate the credentials. If you don't pass anything Tinywork will try use a Models\User classname but that class is not included so if you want use the default value you should create it before.
+
+Once you provide every arg Tinywork will try to check the user credentials, if there's all ok it will return you a new fresh instance of the model that you passed in **$modelInfo** argument.
+
+## Login a valid user.
+Once you check the credentials and all goes good, you can login a user with the **login()** Auth method.
+
+When you call **login()** method you should pass the info that you want to save in in the session and Tinywork will store it inside **$_SESSION['__auth']** key.
+
+You're free to send whatever you like, but **login()** method needs that always the array had a **id** key with a valid unique id from your main users table.
+
+```
+Auth::login(
+    [
+        "id" => 2,
+        //Here you can put anything else
+    ]
+);
+```
+
+### Checking if there's a logged user.
+Auth class provides **authenticated()** method which return ``true`` if a user has a actual login or ``false`` otherwise.
+
+## Logout a user.
+To logout a user is more easy, just call **logout()** method and the actual session will be removed including the **__auth** key from **$_SESSION**.
