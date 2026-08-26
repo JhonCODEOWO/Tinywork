@@ -1,5 +1,7 @@
 <?php
 
+use Core\JustArray\JustArray;
+
 define('FUNCIONES_URL', __DIR__ . "/funciones/funciones.php");
 define('TEMPLATES_URL', __DIR__ . "/templates");
 define('CARPETA_IMAGENES', $_SERVER['DOCUMENT_ROOT'].'/imagenes/');
@@ -97,4 +99,17 @@ function contentInsideBrackets(string $string): string{
         $result .= $string[$i];
     }
     return $result;
+}
+
+
+/**
+ *  Refactored find method from JustArray to returns a value from a array to use in templates.
+ *
+ * @param array|null $array The array to search in
+ * @param string $path The path to find a value.
+ * @return mixed The value
+ */
+function arrayFrom(array | null $array, string $path): mixed{
+    if(!isset($array)) return null;
+    return JustArray::find($array, $path);
 }
