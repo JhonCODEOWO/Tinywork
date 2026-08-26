@@ -5,19 +5,6 @@ define('TEMPLATES_URL', __DIR__ . "/templates");
 define('CARPETA_IMAGENES', $_SERVER['DOCUMENT_ROOT'].'/imagenes/');
 define('VIEWS_PATH', __DIR__."/../views/");
 
-function incluirTemplate(string $nombre, bool $inicio = false)
-{
-    include TEMPLATES_URL . "/$nombre.php";
-}
-
-function estaAutenticado() {
-    session_start();
-    
-    if(!$_SESSION['login']) {
-        header('Location: /');
-    }
-}
-
 function debug(mixed $content){
     echo "<pre>";
     var_dump($content);
