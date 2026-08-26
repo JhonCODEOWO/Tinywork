@@ -24,6 +24,17 @@ things of a PHP project with the objetive of give you a structure and main featu
     - [Handling files uploaded.](#handling-files-uploaded)
 - [Validating a form  or array data](#validating-a-form--or-array-data)
   - [Validating files (beta)](#validating-files-beta)
+  - [Available validation rules](#available-validation-rules)
+  - [Normal value rules.](#normal-value-rules)
+    - [required](#required)
+    - [requiredIf](#requiredif)
+    - [confirmed](#confirmed)
+    - [min](#min)
+    - [minLength](#minlength)
+    - [email](#email)
+  - [File uploaded Rules](#file-uploaded-rules)
+    - [file](#file)
+    - [maxSize](#maxsize)
 - [Protected routes](#protected-routes)
   - [Creating a middleware](#creating-a-middleware)
   - [Protecting a route](#protecting-a-route)
@@ -233,6 +244,91 @@ $validator = new Validator($body, [
         "file.profile_picture" => "required|file|maxSize:1000"
     ]);
 ```
+
+## Available validation rules
+Every rule can need one or more args to work.
+1. If the rule doesn't need args you should type the rule only by its name.
+2. If the rule has args to work you should pass them by the next syntax: ```ruleName:args```.
+
+> **Notes**
+>
+> The rules declared here are subject to changes which means its logic can change or even more rules could be added in future commits.
+
+
+## Normal value rules.
+
+### required
+`required`
+
+If required is typed then Validator class will check if there's a value or not in the key given. It will check empty strings, null values, undefined or a empty array.
+
+### requiredIf
+``requiredIf:keyOfField``
+
+**keyOfField**: A valid key/path inside the array.
+
+It will checks if there's a value in the field only if **keyOfField** has a value which means a key/path with **requiredIf** will be required conditionally by a existing value in another field.
+
+It applies the same validations of **required** rule.
+
+
+### confirmed
+``confirmed:keyToCheckMatch``
+
+**keyToCheckMatch**: Another key/path of the array that you want confirm.
+
+It will checks if the value of the field where **confirmed** is declared match with the **keyToCheckMatch** field value.
+
+### min
+>**Note**:
+>It only works with int values.
+
+```min:minValue```
+
+**minValue**: The minimum value accepted for the field.
+
+It will checks if the path/key where it is declared equals or exceeds the **minValue** declared.
+
+### minLength
+>**Note**: This rule works with *array* and *string* values.
+
+``minLength:minElementsNeeded``
+
+It checks if the key/path value has the **minElementsNeeded** items.
+
+### email
+
+``email``
+
+It uses native FILTER_VALIDATE_EMAIL constant of PHP to check if the value inside the key/path where the rule is declared has a valid email.
+
+## File uploaded Rules
+
+Don't forget, if you want declare file rules you should put them in a valid key/path with dot syntax ```files.fileInputName```.
+
+```
+$validator = new Validator([
+    "name" => "", //Here file rules aren't valid
+    "files.profileImage" => "" //Here file rules are valid
+])
+```
+
+If you declare a file rule in a key/path of the body data you would get a exception or unexpected results.
+
+### file
+``file``
+
+It checks if the key/path has a valid file instance and its a success uploaded file.
+
+It only works with a single uploaded file.
+
+### maxSize
+
+``maxSize:sizeInKB``
+
+**sizeInKb**: The size in KB that you don't want to exceed in every uploaded file.
+
+It checks every file of the key/path where it is defined for every file uploaded even it is a only file or multiple file.
 
 # Protected routes
 Tinywork provides Middleware feature which means you can create Middleware files and mark routes with them.
