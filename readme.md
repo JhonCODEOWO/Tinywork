@@ -23,6 +23,7 @@ things of a PHP project with the objetive of give you a structure and main featu
     - [Handling form data.](#handling-form-data)
     - [Handling files uploaded.](#handling-files-uploaded)
 - [Validating a form  or array data](#validating-a-form--or-array-data)
+  - [Validating data request.](#validating-data-request)
   - [Validating files (beta)](#validating-files-beta)
   - [Available validation rules](#available-validation-rules)
   - [Normal value rules.](#normal-value-rules)
@@ -210,6 +211,8 @@ $uploadedPicture = JustArray::find($body, 'files.profile');
 Then you can receive an array of UploadedFile instance objects or just one object if your input file is marked as non multiple.
 
 # Validating a form  or array data
+
+## Validating data request.
 A API to validate array inputs is provided, you can use it creating a instance of Validator class where you should pass the array to validate and another array where ``key`` is the key name inside the array arg that contains the value to evaluate and the `value` is a string with every rule to evaluate separated by a | symbol.
 ```
 $body = $request->getBody();
