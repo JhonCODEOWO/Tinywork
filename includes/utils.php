@@ -90,10 +90,6 @@ function view(string $viewPath, array $data, ?string $layoutPath = null){
     echo $content;
 }
 
-function query(string $key): string | null{
-    return $_GET[$key] ??  null;
-}
-
 function contentInsideBrackets(string $string): string{
     $len = strlen($string);
     $result = '';
