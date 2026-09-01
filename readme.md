@@ -160,10 +160,10 @@ $router->('/', function(Request $request) {
 This means that every action function inside your Controller classes can use the $request argument too.
 
 ## Getting query params and url params.
-Of course you can register a route with url params, you can do this using **:urlparameter** syntax
+Of course you can register a route with url params, you can do this using **{urlparameter}** syntax
 
 ```
-$router->('/product/:id', function(Request $request) {
+$router->('/product/{id}', function(Request $request) {
     
 })
 ```
