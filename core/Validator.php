@@ -179,6 +179,45 @@ class Validator {
         return filter_var($inputValue, FILTER_VALIDATE_EMAIL);
     }
     
+        /**
+     *  Checks if a value already exists in DB.
+     *
+     * @param mixed $inputValue Value from a field
+     * @param mixed $params A string with `tableName,columnToCheck,ignoreColumn,ignoreValue` syntax.
+     * @return bool
+     */
+    public function unique(mixed $inputValue, mixed $params): bool{
+        $params = explode(',', $params);
+        [$tableName, $columnToCheck, $ignoreColumn,$ignoreValue] = array_pad($params, 4, null);
+
+        $db = Database::getDb();
+
+        $sqlSentence = "SELECT * FROM $tableName WHERE $columnToCheck = ?";
+        
+        //TODO: Check inputValue type and ignoreValue to append them
+        $types = "s";
+
+        if ($ignoreValue != null && $ignoreColumn != null) {
+            $sqlSentence .= " AND $ignoreColumn != ?";
+            $types .= "s";
+        }
+
+        $sqlSentence .= " LIMIT 1";
+        
+        $stmt = $db->prepare($sqlSentence);
+
+        //Execute operations
+        ($ignoreValue != null && $ignoreColumn != null)?
+            $stmt->bind_param($types, $inputValue, $ignoreValue)
+            :
+            $stmt->bind_param($types, $inputValue);
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        return ($result->num_rows == 0);
+    }
+    
     /**
      *  Exec validation rules of the validator instance for each field value.
      *
