@@ -36,6 +36,8 @@ things of a PHP project with the objetive of give you a structure and main featu
   - [File uploaded Rules](#file-uploaded-rules)
     - [file](#file)
     - [maxSize](#maxsize)
+  - [Database rules](#database-rules)
+    - [unique](#unique)
 - [Protected routes](#protected-routes)
   - [Creating a middleware](#creating-a-middleware)
   - [Protecting a route](#protecting-a-route)
@@ -333,9 +335,24 @@ It only works with a single uploaded file.
 
 It checks every file of the key/path where it is defined for every file uploaded even it is a only file or multiple file.
 
+## Database rules
+
+### unique
+
+``unique:tableName,columnToCheck,ignoredColumnId,ignoredValue``
+
+A rule that checks if the key/path value already exists in the `tableName` provided using the `columnToCheck` to compare against the key/path value where the rule is declared.
+
+* **tableName** - The table to check into.
+* **columnToCheck** - The column where you want unique values.
+* **ignoredColumnId (optional)** - The name of a column where you want to ignore the validation.
+* **ignoredValue (required if ignoredColumnId is provided)** - The value to ignore in the validation.
+
+
 # Protected routes
 Tinywork provides Middleware feature which means you can create Middleware files and mark routes with them.
 Every middleware included in the third parameter of get() and post() Route methods will be executed before execute the controller action route registered.
+
 ## Creating a middleware
 Before you can mark a route with middlewares you should create a .php file with a class that implements MiddlewareInterface contract inside ``middlewares/`` folder.
 
