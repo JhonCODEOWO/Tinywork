@@ -43,13 +43,13 @@ class ActiveRecord {
      */
     public function rehydrate(array $data){
         foreach ($data as $key => $value) {
-            if(!property_exists($this, $key) || is_null($value)) continue;
+            if(!property_exists($this, $key)) continue;
 
             $castedValue = $this->castProperty($key, $value);
 
-            if($castedValue === false || $castedValue === null) continue;
+            if($castedValue['success'] === false) continue;
 
-            $this->$key = $castedValue;
+            $this->$key = $castedValue['value'];
         }
     }
 
