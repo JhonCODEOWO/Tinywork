@@ -53,7 +53,7 @@ class ActiveRecord {
         }
     }
 
-    protected function castProperty(string $key, mixed $value) : mixed {
+    protected function castProperty(string $key, mixed $value) : array {
             $property = new ReflectionProperty($this, $key);
             $type = $property->getType();
             $allowsNull = $type->allowsNull();
@@ -104,7 +104,7 @@ class ActiveRecord {
                     break;
             }
 
-            return $filtered;
+            return $result;
     }
 
 
