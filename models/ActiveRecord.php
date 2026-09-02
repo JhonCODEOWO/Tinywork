@@ -1,6 +1,8 @@
 <?php
 
 namespace Models;
+
+use Core\JustArray\JustArray;
 use mysqli;
 use ReflectionProperty;
 
@@ -52,22 +54,50 @@ class ActiveRecord {
     }
 
     protected function castProperty(string $key, mixed $value) : mixed {
-        $property = new ReflectionProperty($this, $key);
-            $type = $property->getType()?->getName();
-            $filtered = false;
+            $property = new ReflectionProperty($this, $key);
+            $type = $property->getType();
+            $allowsNull = $type->allowsNull();
+            
+            $result = [
+                "success" => false,
+                "value" => null,
+            ];
 
-            switch ($type) {
+            if(gettype($value) == 'NULL' && $allowsNull) {
+                JustArray::add($result, true, "success");
+                JustArray::add($result, null, "value");
+
+                return $result;
+            }
+
+            switch ($type->getName()) {
                 case 'string':
-                    $filtered = (string) $value;
+                    $result['value'] = (string) $value;
+                    $result['success'] = true;
                     break;
                 case 'int':
                     $filtered = filter_var($value, FILTER_VALIDATE_INT);
+                    
+                    if($filtered != false){
+                        $result['value'] = $filtered;
+                        $result['success'] = true;
+                    };
                     break;
                 case 'float':
                     $filtered = filter_var($value, FILTER_VALIDATE_FLOAT);
+                    
+                    if($filtered != false){
+                        $result['value'] = $filtered;
+                        $result['success'] = true;
+                    };
                     break;
                 case 'bool':
                     $filtered = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                    
+                    if($filtered != NULL){
+                        $result['value'] = $filtered;
+                        $result['success'] = true;
+                    };
                     break;
                 default:
                     # code...
@@ -84,7 +114,7 @@ class ActiveRecord {
      * @return static | null The element in DB successfully updated null otherwise
      */
     public function update(): static | null{
-        $attributes = $this->sanitizeAtributos();
+        $attributes = $this->sanitizeAttributes();
         $values = [];
 
         foreach ($attributes as $key => $value) {
@@ -100,7 +130,7 @@ class ActiveRecord {
 
     public function save(){
         //Sanitize data
-        $attributes = $this->sanitizeAtributos();
+        $attributes = $this->sanitizeAttributes();
 
         $plainCols = join(', ', array_keys($attributes));
         $plainValues = join("', '", array_values($attributes));
@@ -144,11 +174,11 @@ class ActiveRecord {
     /**
      * Sanitize every attribute in the current class.
      */
-    public function sanitizeAtributos(): array{
+    public function sanitizeAttributes(): array{
         $attributes = $this->atributos();
         $sanitized = [];
-        foreach ($attributes as $key => $value) {
-            $sanitized[$key] = self::$db->escape_string($value);
+        foreach ($attributes as $columnName => $value) {
+            $sanitized[$columnName] = self::$db->escape_string($value); //["columnName"] => sanitizedInput
         }
 
         return $sanitized;
