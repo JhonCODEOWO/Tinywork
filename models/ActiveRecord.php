@@ -110,10 +110,11 @@ class ActiveRecord {
 
     /**
      * Update a record in DB
-     *
+     *  @param array $dataToUpdate A array with column (key) and value to update to the current object in DB.
      * @return static | null The element in DB successfully updated null otherwise
      */
-    public function update(): static | null{
+    public function update(array $dataToUpdate): static | null{
+        $this->rehydrate($dataToUpdate);
         $attributes = $this->sanitizeAttributes();
         $values = [];
 
