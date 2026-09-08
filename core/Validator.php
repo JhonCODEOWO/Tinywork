@@ -280,4 +280,46 @@ class Validator {
     public function invalid(): bool {
         return $this->errors->hasErrors();
     }
+
+    /**
+     *  Checks in DB if exists a record with the given $valueToCheck arg.
+     *
+     * @param string $tableName The name of a table in DB to use.
+     * @param string $columnToCheckIn A valid column name 
+     * @param mixed $valueToCheck The value to search using $tableName and $columnToCheck args.
+     * @param array $opts An optional array with two values [ignoreColumn, ignoreValue] to implement an exception
+     * for a specific field in ignoreColumn (use it to ignore a update operation for example).
+     * @return bool `true` if a record exists `false` if a record doesn't exists or if the operation fails.
+     */
+    private function checkIfExists(string $tableName, string $columnToCheckIn, mixed $valueToCheck, array $opts = []): bool{
+        [$ignoreValue, $ignoreColumn] = array_pad($opts, 2, null);
+        $db = Database::getDb();
+
+        $sqlSentence = "SELECT * FROM $tableName WHERE $columnToCheckIn = ?";
+        
+        //TODO: Check inputValue type and ignoreValue to append them
+        $types = "s";
+
+        if ($ignoreValue != null && $ignoreColumn != null) {
+            $sqlSentence .= " AND $ignoreColumn != ?";
+            $types .= "s";
+        }
+
+        $sqlSentence .= " LIMIT 1";
+        
+        $stmt = $db->prepare($sqlSentence);
+
+        //Execute operations
+        ($ignoreValue != null && $ignoreColumn != null)?
+            $stmt->bind_param($types, $valueToCheck, $ignoreValue)
+            :
+            $stmt->bind_param($types, $valueToCheck);
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if(!$result) return false;
+
+        return ($result->num_rows === 1);
+    }
 }
