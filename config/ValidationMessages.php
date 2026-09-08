@@ -14,5 +14,5 @@ return [
     "email" => "The :field is not a valid email address.",
     "confirmed" => "You should confirm the value of :value field.",
     "unique" => ":field value already exists.",
-    "exists" => "A record with the value in :field field doesn't exists."
+    "exists" => "A record with the value in :field field should exists first to continue."
 ];
