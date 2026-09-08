@@ -13,5 +13,6 @@ return [
     "requiredIf" => "The :field field is required.",
     "email" => "The :field is not a valid email address.",
     "confirmed" => "You should confirm the value of :value field.",
-    "unique" => ":field value already exists."
+    "unique" => ":field value already exists.",
+    "exists" => "A record with the value in :field field doesn't exists."
 ];
