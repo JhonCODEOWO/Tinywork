@@ -185,6 +185,7 @@ class Validator {
      * @param mixed $inputValue Value from a field
      * @param mixed $params A string with `tableName,columnToCheck,ignoreColumn,ignoreValue` syntax.
      * @return bool
+     * @TODO Implement checkIfExists() method here and debug it.
      */
     public function unique(mixed $inputValue, mixed $params): bool{
         $params = explode(',', $params);
