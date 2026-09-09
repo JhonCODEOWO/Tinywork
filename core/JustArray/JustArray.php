@@ -20,7 +20,7 @@ class JustArray {
      *  
      * @return mixed The result of the search by path `null` if there's no value inside the array.
      */
-    public static function find(array $array, string $path): mixed {
+    public static function &find(array $array, string $path): mixed {
         try {
             return static::findReference($array, $path);
         } catch (Exception $ex) {
@@ -48,23 +48,17 @@ class JustArray {
         } catch (KeyNotExistsException $ex) {
             $current = &$array; //Store the reference of the array.
 
-            //Iterate each path segment
+            //Iterate each path segment to create all path..
             foreach ($pathSegments as $index => $wantedKey) {
                 //If the path segment already exists then access to it...
-                if(array_key_exists($wantedKey, $current)) {
-                    $current = &$current[$wantedKey];
-                    continue;
+                if(!array_key_exists($wantedKey, $current)) {
+                    $current[$wantedKey] = [];
                 };
 
-                //If the curren path segment is the last then put the wanted value
-                if($index === count($pathSegments) - 1) {
-                    $current[$wantedKey] = $newValue;
-                    break;
-                }
-
-                //While the index doesn't reach the last of them create a new nested array every time.
-                $current[$wantedKey] = [];
+                $current = &$current[$wantedKey];
             }
+            
+            $current = $newValue;
         } catch (InvalidPathException $ex) {
 
         }
