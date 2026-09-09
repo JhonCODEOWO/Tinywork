@@ -5,6 +5,7 @@ namespace Routes;
 use Closure;
 use Core\JustArray\JustArray;
 use Error;
+use Middlewares\SessionMiddleware;
 use Routes\Request;
 
 class Router {
@@ -109,6 +110,7 @@ class Router {
         
         $handler = JustArray::find($route, 'handler');
         $middlewares = JustArray::find($route, 'middlewares');
+        $middlewares[] = SessionMiddleware::class;
 
         foreach (explode('/', $routeMatch) as $index => $value) {
             if(strlen($value) === 0) continue;
@@ -125,9 +127,8 @@ class Router {
                 "method" => $method,
                 "body" => $_POST,
             ], $_FILES);
-
+            
             $next = $this->buildMiddlewarePipeline($handler, $middlewares);
-
             $next($req);
         }
     }
@@ -139,7 +140,6 @@ class Router {
      * @return void
      */
     private function execHandler(callable | array $handler, Request $req){
-        
         //Check if its a callback and execute it
         if(is_callable($handler)) return call_user_func($handler, $req);
 
@@ -189,7 +189,6 @@ class Router {
                     return $middlewareInstance->handle($req, $next);
                 };
             }
-
             return $next;
     }
 }
