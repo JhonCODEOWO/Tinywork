@@ -7,11 +7,7 @@ use Error;
 use Models\User;
 
 class Auth {
-    public static function start(){
-        if (session_status()  === PHP_SESSION_NONE) {
-            session_start();
-        }
-    }
+    
     
     /**
      *  Try to verify if a user can login or not.
@@ -53,17 +49,18 @@ class Auth {
      * Auth::login(["id" => 2]);
      */
     public static function login(array $userData){
-        static::start();
+        Session::start();
         if(!key_exists('id', $userData))
             throw new Error('To login a user you need pass at least a unique id to work with it.');
 
-        $_SESSION['__auth'] = [
-            "user" => $userData,
-        ];
+        Session::set('__auth', $userData);
+        // $_SESSION['__auth'] = [
+        //     "user" => $userData,
+        // ];
     }
 
     public static function logout(){
-        unset($_SESSION['__auth']);
+        Session::unset("__auth");
     }
 
     public static function authenticated(): bool {
