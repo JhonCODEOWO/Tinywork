@@ -2,6 +2,7 @@
 
 use Core\Errors;
 use Core\JustArray\JustArray;
+use Core\Session;
 
 define('FUNCIONES_URL', __DIR__ . "/funciones/funciones.php");
 define('TEMPLATES_URL', __DIR__ . "/templates");
@@ -123,4 +124,15 @@ function arrayFrom(array | null $array, string $path): mixed{
  */
 function error(?string $key = null): array | null | string{
     return Errors::error($key);
+}
+
+
+/**
+ *  retrieves a old request value by a path given.
+ *
+ * @param ?string $path The name of a input in the request to retrieve.
+ * @return mixed `null` if doesn't exists a value, `mixed` otherwise containing the prev old value.
+ */
+function old(?string $path): mixed{
+    return Session::getPrevFlashData("old.$path");
 }
