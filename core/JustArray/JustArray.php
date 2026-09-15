@@ -66,6 +66,27 @@ class JustArray {
         return $array;
     }
 
+
+    /**
+     * Appends a value to the very end in a array path value.
+     *
+     * @param array $array Array input where append operation will be executed.
+     * @param mixed $toAppend An array or any type of data to append.
+     * @param string $pathToArrayValue A valid path containing a array value to work in.
+     * @return void
+     */
+    public static function append(array &$array, mixed $toAppend, string $pathToArrayValue){
+        try {
+            $value = &static::findReference($array, $pathToArrayValue);
+
+            if(!is_array($value)) throw new Exception("The path always should contain a array value.");
+            
+            $value[] = $toAppend;
+        } catch (KeyNotExistsException $ex) {
+            echo $ex->getMessage();
+        }
+    }
+
     /**
      * Search a reference inside an array and return its reference or a copy value.
      *
