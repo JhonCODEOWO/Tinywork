@@ -1,5 +1,6 @@
 <?php
 
+use Core\Errors;
 use Core\JustArray\JustArray;
 
 define('FUNCIONES_URL', __DIR__ . "/funciones/funciones.php");
@@ -112,4 +113,14 @@ function contentInsideBrackets(string $string): string{
 function arrayFrom(array | null $array, string $path): mixed{
     if(!isset($array)) return null;
     return JustArray::find($array, $path);
+}
+
+/**
+ *  A helper function which retrieves directly the result of a Errors::error() call.
+ *
+ * @param string |null $key The key to get the first error message, if is `null` then tou will get all errors entries.
+ * @return array|null|string All errors entries, null if nothing is found or the string of the `$key` specified
+ */
+function error(?string $key = null): array | null | string{
+    return Errors::error($key);
 }
