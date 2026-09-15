@@ -14,7 +14,7 @@ things of a PHP project with the objetive of give you a structure and main featu
 - [Registering routes](#registering-routes)
   - [get() \& post() syntax.](#get--post-syntax)
   - [view() method.](#view-method)
-    - [Examples](#examples)
+  - [Examples](#examples)
       - [Registering a route with a callback action](#registering-a-route-with-a-callback-action)
       - [Registering a route with a ControllerClass action](#registering-a-route-with-a-controllerclass-action)
       - [Protecting a route with an AuthMiddleware](#protecting-a-route-with-an-authmiddleware)
@@ -127,7 +127,7 @@ view(string $path, array $data, string $templatePath): void
 
 When you call this function it will execute a echo rendering every HTML content.
 
-### Examples
+## Examples
 #### Registering a route with a callback action
 ```
 $router->get('/', function(Request $request) {
