@@ -82,6 +82,20 @@ class Session {
     }
 
     /**
+     *  Get flash date of the last request by dot path notation.
+     *
+     * @param string $path
+     * @return mixed
+     */
+    static function getPrevFlashData(string $path): mixed {
+        try {
+            return static::get("__prev.$path");
+        } catch (\Throwable $th) {
+            return null;
+        }
+    }
+
+    /**
      *  Get flash data by dot path notation.
      *
      * @param string $path
