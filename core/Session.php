@@ -63,6 +63,18 @@ class Session {
         }
     }
 
+
+    /**
+     *  Appends a new value to the end of a array inside flash data.
+     *
+     * @param string $path
+     * @param mixed $value
+     * @return void
+     */
+    static function appendFlashArray(string $path, mixed $value){
+        JustArray::append($_SESSION, $value, "__flash.$path");
+    }
+
     /**
      *  Moves __flash data to __prev inside $_SESSION which means every next request can use __prev data.
      *
