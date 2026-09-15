@@ -11,6 +11,7 @@ class SessionMiddleware implements MiddlewareInterface {
     function handle(Request $req, Closure $next): mixed
     {
         Session::setPrevFlash();
+        Session::flash("old", $req->getBody());
         return $next($req);
     }
 }
