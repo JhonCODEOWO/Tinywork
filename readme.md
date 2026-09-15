@@ -13,6 +13,7 @@ things of a PHP project with the objetive of give you a structure and main featu
 - [How start to using it](#how-start-to-using-it)
 - [Registering routes](#registering-routes)
   - [get() \& post() syntax.](#get--post-syntax)
+  - [view() method.](#view-method)
     - [Examples](#examples)
       - [Registering a route with a callback action](#registering-a-route-with-a-callback-action)
       - [Registering a route with a ControllerClass action](#registering-a-route-with-a-controllerclass-action)
@@ -21,9 +22,18 @@ things of a PHP project with the objetive of give you a structure and main featu
   - [Getting query params and url params.](#getting-query-params-and-url-params)
   - [Retrieving body data.](#retrieving-body-data)
     - [Handling form data.](#handling-form-data)
+    - [Rendering form values in a redirection.](#rendering-form-values-in-a-redirection)
     - [Handling files uploaded.](#handling-files-uploaded)
+- [Errors class](#errors-class)
+  - [Main structure.](#main-structure)
+  - [add()](#add)
+  - [Getting errors from the instance](#getting-errors-from-the-instance)
+    - [all()](#all)
+    - [getAllFrom()](#getallfrom)
+    - [getFrom()](#getfrom)
 - [Validating a form  or array data](#validating-a-form--or-array-data)
   - [Validating data request.](#validating-data-request)
+  - [Rendering errors inside templates.](#rendering-errors-inside-templates)
   - [Validating files (beta)](#validating-files-beta)
   - [Available validation rules](#available-validation-rules)
   - [Normal value rules.](#normal-value-rules)
@@ -59,6 +69,7 @@ things of a PHP project with the objetive of give you a structure and main featu
 6. Middleware protection support for every route stored.
 7. Array API with navigation based on dot notation to manage every array structure in the project.
 8. Js & Css files managed by Vite.
+9. Flash data session between request.
 
 # How start to using it
 - Clone this repo wherever you want using `git clone`
@@ -89,6 +100,12 @@ $router->post('/create', function(Request $request) {
 });
 ```
 ## get() & post() syntax.
+
+> For every callback or handler controller function you should use one of the next options
+> * **redirectTo()**: Use it in POST handlers to redirect based on the result of a operation.
+> * **return**: Use a return clause when you just want make operations and retrieve the a result.
+> * **return view()**: Use it when you only want render a view from the controller, it's strongly recommended to get function handlers.
+
 When you call both methods you should pass the next syntax always.
 ```
 method(string: relative_path, callback | array: handler, array: middleware_classnames);
@@ -98,6 +115,17 @@ here's the description of every argument.
 * required - **relative_path** (string): A path to register where a action will be served.
 * required - **handler** (callable|array): Is the function that will handle the request to the path, you can pass a callback or a array with the ``[ClassController::class, 'functionName']`` syntax.
 * optional - **middlewares** (array): A array containing every class name of the classes that will protect a route, if nothing is passed then a request can be execute the handler.
+
+## view() method.
+Use ``view()`` when you want render a template as a response of a request.
+```
+view(string $path, array $data, string $templatePath): void
+```
+* **$path**: The relative path of the template inside /views where is the view to render.
+* **$data**: All data to render inside the view where key will be the name of the variable and the value it's value to render.
+* **$templatePath**: A relative inside /views path where the view will be render.
+
+When you call this function it will execute a echo rendering every HTML content.
 
 ### Examples
 #### Registering a route with a callback action
@@ -187,23 +215,66 @@ if the query param doesn't exists it will returns null.
 When a route is post the Request class will store all form data including files uploaded using the name value of the form typed in HTML.
 
 ### Handling form data.
-To retrieve body data you can use the method getBody() which returns a sanitized form with all data passed by a post request with two keys `body` and `files`.
-
-If you want to initialize some of them because one or more of them can be not included like: radio buttons, checkboxes etc. you can initialize them by passing a array with the value to include if one of them aren't present.
+To retrieve body data you can use the method body() which returns a sanitized form with all data passed by a post request with two keys `body` and `files`.
 
 ```
-$body = $request->getBody();
+$body = $request->body();
 ```
-if you want to access to every data you can use the API Class JustArray it give you the possibility to navigate into them using dot notation.
+
+If you want to initialize some form values because one or more of them can be not included like: radio buttons, checkboxes etc. you can initialize them by passing a array with the value to include if one of them aren't present in the request body using getBody();
+
+```
+$body = $req->getBody([
+    "typeOfUser" => 'admin',
+]);
+```
+If "typeOfUser" is a name of a checkbox input "admin" will be the default value if the user doesn't select any of the checkboxes in the HTML Form.
+
+Every time you want to access to any entry value you can use the API Class JustArray of course will give you the possibility to navigate into them using dot notation.
 
 ```
 $userName = JustArray::find($body, 'body.user.name');
 ```
+
+### Rendering form values in a redirection.
+
+When you use Tinywork with its MVC features you will make a lot of redirection to routes after a post request, in this cases you maybe want to show the previous request body in your views.
+
+For example, the next code simulates a POST controller handler.
+```
+$router->post('/store-product', function(Request $req){
+    $body = $req->getBody();
+
+    $validator = new Validator($body, [
+        "name" => "required|minLength:10"
+        "price" => "required|min:50"
+    ]);
+
+    $errors = $validator->validate();
+
+    //If there's a error then redirect to the path where's the form.
+    if($errors->hasErrors()) redirectTo("/create-product");
+})
+```
+As you can see if the validator has a error then we redirect again to the path where the view of the form is rendered.
+
+Well with the ``old()`` util function you can render every old data submitted by a form in a redirection inside a view.
+
+See how in the next example we use ``old()`` inside the value HTML property.
+
+```
+//Create form example
+<form action="/store-product" method="post>
+    <input name="name" type="text" value="<?php echo old('name') >"/>
+    <input name="price" type="number" value="<?php echo old('email') >"/>
+</form>
+```
+Every time this template render ``old()`` will try to find any previous form value submitted and render it.
 ### Handling files uploaded.
 You can access to every File uploaded by using getFile() api method or using JustArray::find() method too.
 
 ```
-$body = $request->getBody();
+$body = $request->body();
 
 $request->getFile('profile');
 $uploadedPicture = JustArray::find($body, 'files.profile');
@@ -211,6 +282,54 @@ $uploadedPicture = JustArray::find($body, 'files.profile');
 ```
 
 Then you can receive an array of UploadedFile instance objects or just one object if your input file is marked as non multiple.
+
+# Errors class
+
+Before explain how to validate incoming request body data or any other array with ``["key" => "value"]`` entries is important show you how Errors class works.
+
+This class is stored in ``core/Errors.php`` path, it represents a abstraction to manage every error in your application, is used by every core feature of Tinywork that needs register errors to retrieve by a response or render in frontend of the application.
+
+Of course you can create your own instances in another implementations outside of the box, that's the reason to explain how it works.
+
+## Main structure.
+
+Every instance of Errors class initializes with a empty property array called ``$errors`` it's the main property of all functionality and it should always store data in the next structure.
+
+```
+[
+    [key => message],
+    [key => message],
+]
+```
+To keep data in that structure always Errors class has a function.
+## add()
+```
+add(string $key, string $message, boolean $flash = false):void
+```
+This method will add a new error elemento to ``$errors`` property and flash it if ``$flash`` is true.
+
+You can use this method to add additional errors in a Validator instance after execute a ``validate()`` call.
+
+> Every time you use $flash arg with true value all errors added will be stored in a same place inside flash data which means every error in two or more instance of Error class will be stored in the same place.
+
+## Getting errors from the instance
+Errors class has some functions to retrieve message errors only from the current instance, which means it won't work if you try to call them from a template.
+
+### all()
+Retrieves all error entries from ``$errors`` property.
+
+### getAllFrom()
+```
+all(string $key): array
+```
+Retrieves all error entries messages from a key given.
+
+### getFrom()
+
+```
+getFrom(string $key): string|null
+```
+Retrieves the last message inserted in the given key or return nulls if doesn't exists a message.
 
 # Validating a form  or array data
 
@@ -232,7 +351,7 @@ With ErrorBag class you can easily examine if there is an error or is empty of e
 ```
 $valid = $errorBag->hasErrors()
 ```
-You can decide login based on this.
+You can decide logic based on this.
 
 The validate method puts every error if exists inside ErrorBag based on the name provided, so if you want get every error by name you can do this by getFrom() function.
 
@@ -241,6 +360,33 @@ $errorBag->getFrom('name');
 ```
 
 If you want get all error you can do it by use ``getAll()`` method which retrieves an array containing all errors grouped by a key.
+
+## Rendering errors inside templates.
+Every time you execute validate() method from Validator class all errors are stored in flash session data too, which means you can render every error in the template rendered by the next response of a request.
+
+For example, in the next code we have a rendering based on the result of a validation
+```
+$validator = new Validator(
+    $req->getBody(),
+    [
+        "name" => "required"
+    ]
+);
+
+$errors = $validator->validate();
+
+if(errors->hasErrors()) redirectTo('/create-account');
+
+//Here's logic if validation pass successfully...
+```
+When Tinywork redirects you to /create-account path the view rendered can render every error from the previous request with a util function ``old()`` it renders a message from errors stored in flash data by a path.
+
+The next line of HTML code will render the error stored in flash of the field name if exists.
+```
+//inside a .php file view.
+
+<p><?php echo old('name') ></p>
+```
 
 ## Validating files (beta)
 You can validate files uploaded too, you only should include "files." to the ``key`` name inside the validation rules array.
