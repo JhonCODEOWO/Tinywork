@@ -155,37 +155,14 @@ class Validator {
     public function min(mixed $input, mixed $minValue): bool{
         return ($input >= $minValue);
     }
-    
-    /**
-     * minLength
-     * Checks if a input field value has te min length specified.
-     *
-     * @param  mixed $input
-     * @param  mixed $length
-     * @return bool
-     */
-    public function minLength(mixed $input, string $length): bool {
-        $type = gettype($input);
-        switch ($type) {
-            case 'array':
-                return (count($input) >= $length);
-            
-            default:
-                return (strlen($input) >= $length);
-        }
-    }
 
-    public function email(mixed $inputValue, $params){
-        return filter_var($inputValue, FILTER_VALIDATE_EMAIL);
-    }
-    
-        /**
+
+    /**
      *  Checks if a value already exists in DB.
      *
      * @param mixed $inputValue Value from a field
      * @param mixed $params A string with `tableName,columnToCheck,ignoreColumn,ignoreValue` syntax.
      * @return bool
-     * @TODO Implement checkIfExists() method here and debug it.
      */
     public function unique(mixed $inputValue, mixed $params): bool{
         $params = explode(',', $params);
@@ -233,6 +210,29 @@ class Validator {
     }
     
     /**
+     * minLength
+     * Checks if a input field value has te min length specified.
+     *
+     * @param  mixed $input
+     * @param  mixed $length
+     * @return bool
+     */
+    public function minLength(mixed $input, string $length): bool {
+        $type = gettype($input);
+        switch ($type) {
+            case 'array':
+                return (count($input) >= $length);
+            
+            default:
+                return (strlen($input) >= $length);
+        }
+    }
+
+    public function email(mixed $inputValue, $params){
+        return filter_var($inputValue, FILTER_VALIDATE_EMAIL);
+    }
+    
+    /**
      *  Exec validation rules of the validator instance for each field value.
      *
      * @return Errors A errors instance to interact with them.
@@ -251,7 +251,7 @@ class Validator {
                 $result = $this->$ruleFnName($inputValue, $ruleParam);
 
                 if(!$result){
-                    $this->errors->add($this->errorValidation($field, $ruleFnName, $ruleParam), $field);
+                    $this->errors->add($this->errorValidation($field, $ruleFnName, $ruleParam), $field, true);
                 }
             }
         }
@@ -262,9 +262,9 @@ class Validator {
      *  Pick a error message from the current ValidationErrors.php file and returns the formatted string
      *  with field name and the needed value.
      *
-     * @param  string $field
-     * @param  string $rule
-     * @param  string | null $paramVal
+     * @param  string $field The field string to show in the error message
+     * @param  string $rule The rule to pick a rule message from dictionary.
+     * @param  string | null $paramVal Param val value to show the rule to respect
      * @return string The error validation rule.
      */
     private function errorValidation(string $field, string $rule, string | null $paramVal): string{
@@ -295,16 +295,7 @@ class Validator {
         return $this->errors->hasErrors();
     }
 
-    /**
-     *  Checks in DB if exists a record with the given $valueToCheck arg.
-     *
-     * @param string $tableName The name of a table in DB to use.
-     * @param string $columnToCheckIn A valid column name 
-     * @param mixed $valueToCheck The value to search using $tableName and $columnToCheck args.
-     * @param array $opts An optional array with two values [ignoreColumn, ignoreValue] to implement an exception
-     * for a specific field in ignoreColumn (use it to ignore a update operation for example).
-     * @return bool `true` if a record exists `false` if a record doesn't exists or if the operation fails.
-     */
+
     private function checkIfExists(string $tableName, string $columnToCheckIn, mixed $valueToCheck, array $opts = []): bool{
         [$ignoreValue, $ignoreColumn] = array_pad($opts, 2, null);
         $db = Database::getDb();
