@@ -197,6 +197,57 @@ class Validator {
     }
 
     /**
+     * Checks if $inputValue is a valid array.
+     *
+     * @param mixed $inputValue
+     * @param mixed $params
+     * @return void
+     */
+    public function array(mixed $inputValue, mixed $params = ''){
+        return is_array($inputValue);
+    }
+
+    /**
+     *  Checks if the field value is a array.
+     *
+     * @param mixed $inputValue
+     * @param mixed $params
+     * @return void
+     */
+    public function string(mixed $inputValue, mixed $params = ''){
+        return is_string($inputValue);
+    }
+
+    /**
+     * Checks if a field value is a valid int or int string.
+     *
+     * @param mixed $inputValue
+     * @param mixed $params
+     * @return void
+     */
+    public function int(mixed $inputValue, mixed $params = ''){
+        return is_int($inputValue) || filter_var($inputValue, FILTER_VALIDATE_INT) != FALSE;
+    }
+
+    /**
+     * Checks if every value in a array field value has the type specified.
+     * 
+     * If the inputValue is a invalid array it will returns always false.
+     *
+     * @param mixed $inputValue
+     * @param mixed $type
+     * @return void
+     */
+    public function inArrayType(mixed $inputValue, mixed $type) {
+        if(!$this->array($inputValue)) return false;
+
+        foreach ($inputValue as $value) {
+            if(!$this->$type($value)) return false;
+        }
+        return true;
+    }
+
+    /**
      *  Checks if the inputValue has a already record in the table checking if the inputValue match in the column specified.
      *
      * @param mixed $inputValue The input value.

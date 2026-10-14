@@ -14,5 +14,8 @@ return [
     "email" => "The :field is not a valid email address.",
     "confirmed" => "You should confirm the value of :value field.",
     "unique" => ":field value already exists.",
-    "exists" => "A record with the value in :field field should exists first to continue."
+    "exists" => "A record with the value in :field field should exists first to continue.",
+    "array" => "The value in :field should be an array.",
+    "inArrayType" => "Every value in :field should be :value",
+    "int" => "The value in :field should be integer or integer string."
 ];
