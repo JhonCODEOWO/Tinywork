@@ -126,6 +126,8 @@ class Router {
                 "queryParams" => $_GET,
                 "method" => $method,
                 "body" => $_POST,
+                "accept" => $_SERVER['HTTP_ACCEPT'],
+                "contentType" => $_SERVER['CONTENT_TYPE'],
             ], $_FILES);
             
             $next = $this->buildMiddlewarePipeline($handler, $middlewares);
