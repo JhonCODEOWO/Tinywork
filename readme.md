@@ -125,7 +125,7 @@ view(string $path, array $data, string $templatePath): void
 * **$data**: All data to render inside the view where key will be the name of the variable and the value it's value to render.
 * **$templatePath**: A relative inside /views path where the view will be render.
 
-When you call this function it will execute a echo rendering every HTML content.
+When you call this function it will render the content of the view.
 
 ## Examples
 #### Registering a route with a callback action
