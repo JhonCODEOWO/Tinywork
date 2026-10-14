@@ -14,6 +14,8 @@ class Request {
     /** Body request */
     private array $body = [];
     private array $files = [];
+    /** Stores the accept string of a client request */
+    private string $accept = '';
 
     public function __construct(array $args, ?array $files)
     {
@@ -21,6 +23,7 @@ class Request {
         $this->queryParams = $args["queryParams"] ?? [];
         $this->method = $args['method'] ?? '';
         $this->body = $args["body"] ?? [];
+        $this->accept = $args["accept"] ?? '';
         $this->files = $this->toUploadedFilesArray($files) ?? [];
     }
 
@@ -36,6 +39,16 @@ class Request {
     public function urlParams(): array
     {
         return $this->urlParams;
+    }
+
+    /**
+     * Returns accept string in the request.
+     * @todo Add support to any possible accept string.
+     *
+     * @return string
+     */
+    public function getAccept(): string{
+        return $this->accept;
     }
 
     // =========================
