@@ -14,6 +14,8 @@ class Request {
     /** Body request */
     private array $body = [];
     private array $files = [];
+    /** Stores Content-Type header from incoming request to exec logic based on it. */
+    private string $contentType = "";
     /** Stores the accept string of a client request */
     private string $accept = '';
 
@@ -24,7 +26,16 @@ class Request {
         $this->method = $args['method'] ?? '';
         $this->body = $args["body"] ?? [];
         $this->accept = $args["accept"] ?? '';
+        $this->contentType = $args["contentType"] ?? '';
         $this->files = $this->toUploadedFilesArray($files) ?? [];
+
+        //Replace all body data if the incoming request try to send json data (BETA).
+        if(str_contains($this->contentType, "application/json")){
+            $jsonEntry = file_get_contents("php://input");
+            
+            $decoded = json_decode($jsonEntry, true);
+            $this->body =  $decoded;
+        }
     }
 
     // =========================
@@ -41,12 +52,6 @@ class Request {
         return $this->urlParams;
     }
 
-    /**
-     * Returns accept string in the request.
-     * @todo Add support to any possible accept string.
-     *
-     * @return string
-     */
     public function getAccept(): string{
         return $this->accept;
     }
