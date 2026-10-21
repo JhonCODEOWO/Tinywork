@@ -14,8 +14,9 @@ class Response {
      * @param int $http_code The HTTP_CODE to return in the headers.
      * @return void
      */
-    static function json(array $data, int $http_code) {
+    static function json(array | object $data, int $http_code) {
         http_response_code($http_code);
+        header("Content-Type: application/json");
 
         echo json_encode($data);
         exit;
