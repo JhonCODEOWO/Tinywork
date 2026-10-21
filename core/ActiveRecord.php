@@ -140,7 +140,10 @@ class ActiveRecord {
 
         //Exec operations using the static connection.
         $result = self::$db->query($query);
-        return $result;
+
+        if(!$result) return false;
+
+        return $this->find(static::$db->insert_id);
     }
     
     /**
