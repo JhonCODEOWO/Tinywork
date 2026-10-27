@@ -1,5 +1,6 @@
 <?php
 
+use Core\Auth;
 use Core\Errors;
 use Core\JustArray\JustArray;
 use Core\Session;
@@ -135,4 +136,13 @@ function error(?string $key = null): array | null | string{
  */
 function old(?string $path): mixed{
     return Session::getPrevFlashData("old.$path");
+}
+
+/**
+ * Returns Auth classname string to use static methods in templates.
+ *
+ * @return string
+ */
+function Auth() : string{
+    return Auth::class;
 }
