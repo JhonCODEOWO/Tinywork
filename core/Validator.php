@@ -84,6 +84,22 @@ class Validator {
         if(is_array($input)) return count($input) != 0;
         return (isset($input) && $input != null && $input != "");
     }
+
+    /**
+     * Check for a valid date when $inputValue must be a date in Y-m-d format.
+     *
+     * @param mixed $inputValue The value from the input based on $data key value where it should be a string 
+     * in Y-m-d format.
+     * @param mixed $params A valid string from a input key inside $data where $value arg in the validation rule
+     * should contain a separator to explode the $inputValue string.
+     * @return bool `True` if $inputValue is a correct date `false` otherwise.
+     */
+    
+    function date(mixed $inputValue, mixed $params){
+        [$separator] = explode(',', $params);
+        [$year, $month, $day] = explode($separator, $inputValue);
+        return checkdate($month, $day, $year);
+    }
     
     /**
      * requiredIf Indicates if a field should be evaluated as required if another field has a specific value.

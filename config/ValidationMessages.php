@@ -17,5 +17,6 @@ return [
     "exists" => "A record with the value in :field field should exists first to continue.",
     "array" => "The value in :field should be an array.",
     "inArrayType" => "Every value in :field should be :value",
-    "int" => "The value in :field should be integer or integer string."
+    "int" => "The value in :field should be integer or integer string.",
+    "date" => "The field :field must be a valid date."
 ];
