@@ -227,6 +227,8 @@ class ActiveRecord {
 
         $result = self::execQuery($query);
 
+        if(count($result) === 0) return null;
+
         return $result[0];
     }
 
