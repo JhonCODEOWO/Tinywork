@@ -18,5 +18,6 @@ return [
     "array" => "The value in :field should be an array.",
     "inArrayType" => "Every value in :field should be :value",
     "int" => "The value in :field should be integer or integer string.",
-    "date" => "The field :field must be a valid date."
+    "date" => "The field :field must be a valid date.",
+    "float" => "The field :field must be a float value and contain at least :value decimals."
 ];

@@ -246,6 +246,29 @@ class Validator {
     }
 
     /**
+     * Checks if $inputValue is a valid float and has the decimals specified.
+     *
+     * @param mixed $inputValue A value from a field.
+     * @param mixed $params A string int value the required decimals.
+     * @return bool `true` if it pass `false` otherwise.
+     */
+    public function float(mixed $inputValue, mixed $params = "") {
+        $decimalCount = $params;
+        $hasDecimalCount = strlen($decimalCount) > 0;
+        $isValidFloat = is_float($inputValue) ||
+        filter_var($inputValue, FILTER_VALIDATE_FLOAT) != false;
+
+        if($isValidFloat && !$hasDecimalCount) return true;
+
+        [$integerValue, $decimals] = explode('.', $inputValue);
+
+        if($decimals === null) return false;
+        if(strlen($decimals) > $decimalCount || strlen($decimals) < $decimalCount) return false;
+        
+        return true;
+    }
+
+    /**
      * Checks if every value in a array field value has the type specified.
      * 
      * If the inputValue is a invalid array it will returns always false.
