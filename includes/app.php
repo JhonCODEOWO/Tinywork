@@ -1,12 +1,12 @@
 <?php
 
-require 'funciones.php';
+require 'utils.php';
 require __DIR__ . '/../vendor/autoload.php';
 
 use Core\Database;
 use Core\Session;
 use Dotenv\Dotenv;
-use Models\ActiveRecord;
+use Core\ActiveRecord;
 
 //Load and config environment variables.
 $dotenv = Dotenv::createImmutable(__DIR__.'/../');
